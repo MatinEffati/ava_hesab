@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      home: IntroSlider(),
+      home: LoginScreen(),
     );
   }
 }

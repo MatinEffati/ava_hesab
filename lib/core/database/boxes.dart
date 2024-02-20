@@ -1,10 +1,11 @@
+import 'package:ava_hesab/feature/login/data/model/auth_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveBoxes {
-  // static Box<OTPModel> getAuthBox() => Hive.box<OTPModel>("authBox");
+  static Box<AuthModel> getAuthBox() => Hive.box<AuthModel>("authBox");
 }
 
 Future<void> registerAdapterForBox() async {
-  // Hive.registerAdapter<OTPModel>(OTPModelAdapter());
-  // await Hive.openBox<OTPModel>('authBox');
+  Hive.registerAdapter<AuthModel>(AuthModelAdapter());
+  await Hive.openBox<AuthModel>('authBox');
 }

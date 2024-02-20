@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   RxBool loadingCaptcha = false.obs;
+  RxBool isLoadingLoginButton = false.obs;
   Rx<CaptchaModel> captchaModel = CaptchaModel().obs;
 
   @override
@@ -23,5 +24,10 @@ class LoginController extends GetxController {
 
   Future<CaptchaModel> getCaptcha() async {
     return await getIt<ILoginDataSource>().captcha();
+  }
+
+  Future<String> loginWithUsername(String username, String password, String captcha, String captchaId) async {
+    var response = await getIt<ILoginDataSource>().loginWithUsername(username, password, captcha, captchaId);
+    return response.fold((l) => l.message, (r) => 'ورود شما با موفقیت انجام شذ.');
   }
 }

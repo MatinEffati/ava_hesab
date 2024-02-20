@@ -2,11 +2,14 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ava_hesab/core/database/boxes.dart';
 import 'package:ava_hesab/core/network/failure.dart';
 import 'package:ava_hesab/core/network/network.dart';
+import 'package:ava_hesab/feature/login/data/model/auth_model.dart';
 import 'package:ava_hesab/feature/login/data/model/captcha_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 abstract class ILoginDataSource {
   Future<Either<Failure, void>> loginWithUsername(
@@ -39,22 +42,32 @@ class LoginDataSource extends ILoginDataSource {
     File file = File('$tempPath/${Random().nextInt(1000)}.png');
     await file.writeAsBytes(bytes);
     String captchaId = response.headers['Captchaid'].toString();
+    // Remove square brackets if they exist
+    captchaId = captchaId.replaceAll('[', '').replaceAll(']', '');
     return CaptchaModel(captcha: file, captchaId: captchaId);
   }
 
   @override
-  Future<Either<Failure, void>> loginWithUsername(String username, String password, String captcha, String captchaId) {
-    // TODO: implement loginWithUsername
-    throw UnimplementedError();
+  Future<Either<Failure, void>> loginWithUsername(
+    String username,
+    String password,
+    String captcha,
+    String captchaId,
+  ) async {
+    try {
+      var response = await networkClient.postRequest('customer/login', variables: {
+        "captcha": captcha,
+        "captchaId": captchaId,
+        "password": password,
+        "username": username,
+      });
+      var authFromJson = AuthModel.fromJson(response.data);
+      var authBox = HiveBoxes.getAuthBox();
+      authBox.clear();
+      authBox.put('authBox', authFromJson);
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(Failure(e.response!.data['error']));
+    }
   }
-
-  // @override
-  // Future<Either<Failure, void>> loginWithUsername(String username, String password, String captcha, String captchaId) {
-  //   var response  = networkClient.postRequest('customer/login', variables: {
-  //     "captcha": captcha,
-  //     "captchaId": captchaId,
-  //     "password": password,
-  //     "username": username,
-  //   });
-  // }
 }
