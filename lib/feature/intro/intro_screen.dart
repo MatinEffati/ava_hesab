@@ -36,24 +36,25 @@ class _IntroSliderState extends State<IntroSlider> {
     return Scaffold(
       body: Stack(
         children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _slides.length,
-            onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
-            },
-            itemBuilder: (BuildContext context, int index) {
-              return Slide(
-                image: _slides[index]['image'],
-                title: _slides[index]['title'],
-                description: _slides[index]['description'],
-              );
-            },
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _slides.length,
+              onPageChanged: (int page) {
+                setState(() {
+                  _currentPage = page;
+                });
+              },
+              itemBuilder: (BuildContext context, int index) {
+                return Slide(
+                  image: _slides[index]['image'],
+                  title: _slides[index]['title'],
+                  description: _slides[index]['description'],
+                );
+              },
+            ),
           ),
-
-
           Positioned(
             bottom: 20.0,
             left: 24.0,
@@ -66,26 +67,32 @@ class _IntroSliderState extends State<IntroSlider> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                         backgroundColor:
-                        _currentPage == _slides.length - 1 ? AppColorsLight.primaryColor : Colors.transparent,
-                        foregroundColor: _currentPage == _slides.length - 1 ? Colors.white : AppColorsLight.textLightDefault
-                    ),
+                            _currentPage == _slides.length - 1 ? AppColorsLight.primaryColor : Colors.transparent,
+                        foregroundColor:
+                            _currentPage == _slides.length - 1 ? Colors.white : AppColorsLight.textLightDefault),
                     onPressed: () {
-                      if( _currentPage != _slides.length - 1) {
+                      if (_currentPage != _slides.length - 1) {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.ease,
                         );
-                      }else{
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
+                      } else {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ));
                       }
                     },
-
                     child: Text(_currentPage == _slides.length - 1 ? 'تمام' : 'بعدی'),
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _buildPageIndicator(),
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _buildPageIndicator(),
+                  ),
                 ),
                 Opacity(
                   opacity: _currentPage != 0 ? 1 : 0,
@@ -102,7 +109,6 @@ class _IntroSliderState extends State<IntroSlider> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -113,11 +119,12 @@ class _IntroSliderState extends State<IntroSlider> {
 
   List<Widget> _buildPageIndicator() {
     List<Widget> indicators = [];
-    for (int i = _slides.length - 1; i >= 0; i--) {
+    for (int i = 0; i < _slides.length; i++) {
       indicators.add(_currentPage == i ? _indicator(true) : _indicator(false));
     }
-    return indicators.reversed.toList();
+    return indicators;
   }
+
 
 
   Widget _indicator(bool isActive) {
