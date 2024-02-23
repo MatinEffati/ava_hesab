@@ -5,20 +5,30 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   RxBool loadingCaptcha = false.obs;
-  RxBool isLoadingLoginButton = false.obs;
-  Rx<CaptchaModel> captchaModel = CaptchaModel().obs;
+  RxBool isLoadingLoginUsernameButton = false.obs;
+  RxBool isLoadingLoginOTPButton = false.obs;
+  RxBool isShowOTPFields = false.obs;
+  Rx<CaptchaModel> captchaForUsername = CaptchaModel().obs;
+  Rx<CaptchaModel> captchaForOTP = CaptchaModel().obs;
 
   @override
   void onInit() async {
     super.onInit();
     loadingCaptcha.value = true;
-    captchaModel.value = await getCaptcha();
+    captchaForUsername.value = await getCaptcha();
+    captchaForOTP.value = await getCaptcha();
     loadingCaptcha.value = false;
   }
 
-  void refreshCaptcha() async {
+  void refreshCaptchaUsername() async {
     loadingCaptcha.value = true;
-    captchaModel.value = await getCaptcha(); // Reload the data
+    captchaForUsername.value = await getCaptcha();
+    loadingCaptcha.value = false;
+  }
+
+  void refreshCaptchaOTP() async {
+    loadingCaptcha.value = true;
+    captchaForOTP.value = await getCaptcha();
     loadingCaptcha.value = false;
   }
 
@@ -26,8 +36,25 @@ class LoginController extends GetxController {
     return await getIt<ILoginDataSource>().captcha();
   }
 
+
   Future<String> loginWithUsername(String username, String password, String captcha, String captchaId) async {
+    isLoadingLoginUsernameButton.value = true;
     var response = await getIt<ILoginDataSource>().loginWithUsername(username, password, captcha, captchaId);
-    return response.fold((l) => l.message, (r) => 'ورود شما با موفقیت انجام شذ.');
+    isLoadingLoginUsernameButton.value = false;
+    return response.fold((l) => l.message!, (r) => 'ورود شما با موفقیت انجام شذ.');
+  }
+
+
+  Future<String> loginWithOTP(String mobile, String captcha, String captchaId) async {
+    isLoadingLoginOTPButton.value = true;
+    var response = await getIt<ILoginDataSource>().loginWithUOTP(mobile, captcha, captchaId);
+    isLoadingLoginOTPButton.value = false;
+    return response.fold((l) {
+      isShowOTPFields.value = false;
+      return l.message!;
+    }, (r) {
+      isShowOTPFields.value = true;
+      return r;
+    });
   }
 }
