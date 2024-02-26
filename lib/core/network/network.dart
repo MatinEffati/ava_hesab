@@ -11,14 +11,14 @@ class NetworkClient {
   factory NetworkClient() => _singleton;
 
   static Dio _createDio() {
-    // final authBox = HiveBoxes.getAuthBox();
-    // final String? token = authBox.get('authBox')?.token;
+    final authBox = HiveBoxes.getAuthBox();
+    final String? token = authBox.get('authBox')?.token;
     Dio dio = Dio(
       BaseOptions(
         baseUrl: Constants.baseUrl,
         headers: {
           'Content-Type': 'application/json',
-          'token': '',
+          'Cookie': 'Authorization=$token',
         },
       ),
     );

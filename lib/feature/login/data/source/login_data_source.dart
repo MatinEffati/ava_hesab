@@ -24,6 +24,8 @@ abstract class ILoginDataSource {
     String captchaId,
   );
 
+  //https://www.avahesab.com/api/v1/customer/login/otp/verify code mobile
+
   Future<CaptchaModel> captcha();
 }
 
