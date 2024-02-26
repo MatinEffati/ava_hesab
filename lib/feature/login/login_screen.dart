@@ -4,6 +4,7 @@ import 'package:ava_hesab/core/widgets/snack_bar_widget.dart';
 import 'package:ava_hesab/feature/login/controller/login_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
@@ -179,9 +180,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      TextField(
-                        controller: mobileOTPController,
-                        decoration: const InputDecoration(label: Text('شماره موبایل خود را وارد کنید')),
+                      Obx(
+                        () => TextField(
+                          enabled: !loginController.isShowOTPFields.value,
+                          controller: mobileOTPController,
+                          decoration: const InputDecoration(label: Text('شماره موبایل خود را وارد کنید')),
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Obx(
@@ -230,48 +234,97 @@ class _LoginScreenState extends State<LoginScreen> {
                       Obx(() {
                         return loginController.loadingCaptcha.value
                             ? const CupertinoActivityIndicator()
-                            : Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: captchaOTPController,
-                                      textAlign: TextAlign.center,
-                                      decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.all(8),
+                            : Visibility(
+                                visible: loginController.resendTimer.value == 0,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: captchaOTPController,
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          contentPadding: EdgeInsets.all(8),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  loginController.captchaForOTP.value.captcha != null
-                                      ? Image.file(
-                                          loginController.captchaForOTP.value.captcha!,
-                                          width: 82,
-                                          height: 32,
-                                        )
-                                      : Container(), // Placeholder or alternate content for null captcha
-                                  const SizedBox(width: 12),
-                                  InkWell(
-                                    onTap: () {
-                                      captchaUsernameController.clear();
-                                      loginController.refreshCaptchaOTP();
-                                    },
-                                    child: const Icon(Icons.refresh),
-                                  ),
-                                ],
+                                    const SizedBox(width: 16),
+                                    loginController.captchaForOTP.value.captcha != null
+                                        ? Image.file(
+                                            loginController.captchaForOTP.value.captcha!,
+                                            width: 82,
+                                            height: 32,
+                                          )
+                                        : Container(), // Placeholder or alternate content for null captcha
+                                    const SizedBox(width: 12),
+                                    InkWell(
+                                      onTap: () {
+                                        captchaUsernameController.clear();
+                                        loginController.refreshCaptchaOTP();
+                                      },
+                                      child: const Icon(Icons.refresh),
+                                    ),
+                                  ],
+                                ),
                               );
+                      }),
+
+                      Obx(() {
+                        return Visibility(
+                          visible: loginController.isShowOTPFields.value,
+                          child: Column(
+                            children: [
+                              SizedBox(height: 16),
+                              InkWell(
+                                  onTap: loginController.isOnResendOTP.value
+                                      ? () async {
+                                          await loginController
+                                              .loginWithOTP(
+                                                mobileOTPController.text,
+                                                captchaOTPController.text,
+                                                loginController.captchaForOTP.value.captchaId!,
+                                              )
+                                              .then((value) => snackBarWithoutButton(context, value));
+                                        }
+                                      : null,
+                                  child: Text(
+                                    'ارسال مجدد کد',
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: loginController.isOnResendOTP.value
+                                            ? AppColorsLight.primaryColor
+                                            : AppColorsLight.textSoft),
+                                  )),
+                              const SizedBox(height: 8),
+                              Visibility(
+                                visible: loginController.resendTimer.value != 0,
+                                child: Text(
+                                  'ارسال مجدد کد ${loginController.resendTimer} دیگر',
+                                  style:
+                                      Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColorsLight.textSoft),
+                                ),
+                              )
+                            ],
+                          ),
+                        );
                       }),
                       const SizedBox(height: 24),
                       Obx(() => AvaLoadingButton(
-                            title: 'ارسال کد',
+                            title: loginController.isShowOTPFields.value ? 'تایید کد' : 'ارسال کد',
                             isLoading: loginController.isLoadingLoginOTPButton.value,
                             onPressed: () async {
-                              await loginController
-                                  .loginWithOTP(
-                                    mobileOTPController.text,
-                                    captchaOTPController.text,
-                                    loginController.captchaForOTP.value.captchaId!,
-                                  )
-                                  .then((value) => snackBarWithoutButton(context, value));
+                              if (loginController.isShowOTPFields.value) {
+                                await loginController
+                                    .verifyOTP(mobileOTPController.text, otpCodeController.text)
+                                    .then((value) => snackBarWithoutButton(context, value));
+                              } else {
+                                await loginController
+                                    .loginWithOTP(
+                                      mobileOTPController.text,
+                                      captchaOTPController.text,
+                                      loginController.captchaForOTP.value.captchaId!,
+                                    )
+                                    .then((value) => snackBarWithoutButton(context, value));
+                                captchaOTPController.clear();
+                              }
                             },
                           ))
                     ],

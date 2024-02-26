@@ -7,6 +7,7 @@ import 'package:ava_hesab/core/network/failure.dart';
 import 'package:ava_hesab/core/network/network.dart';
 import 'package:ava_hesab/feature/login/data/model/auth_model.dart';
 import 'package:ava_hesab/feature/login/data/model/captcha_model.dart';
+import 'package:ava_hesab/feature/login/data/model/otp_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
@@ -18,13 +19,16 @@ abstract class ILoginDataSource {
     String captchaId,
   );
 
-  Future<Either<Failure, String>> loginWithUOTP(
+  Future<Either<Failure, OtpModel>> loginWithUOTP(
     String mobile,
     String captcha,
     String captchaId,
   );
 
-  //https://www.avahesab.com/api/v1/customer/login/otp/verify code mobile
+  Future<Either<Failure, void>> verifyOTP(
+    String mobile,
+    String code,
+  );
 
   Future<CaptchaModel> captcha();
 }
@@ -79,14 +83,31 @@ class LoginDataSource extends ILoginDataSource {
   }
 
   @override
-  Future<Either<Failure, String>> loginWithUOTP(String mobile, String captcha, String captchaId) async {
+  Future<Either<Failure, OtpModel>> loginWithUOTP(String mobile, String captcha, String captchaId) async {
     try {
       var response = await networkClient.postRequest('customer/login/otp/request', variables: {
         "captcha": captcha,
         "captchaId": captchaId,
         "mobile": mobile,
       });
-      return Right(response.data['message']);
+      return Right(OtpModel.fromJson(response.data));
+    } on DioException catch (e) {
+      return Left(Failure.fromJson(e.response!.data));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyOTP(String mobile, String code) async{
+    try {
+      var response = await networkClient.postRequest('customer/login/otp/verify', variables: {
+        "mobile": mobile,
+        "code": code,
+      });
+      var authFromJson = AuthModel.fromJson(response.data);
+      var authBox = HiveBoxes.getAuthBox();
+      authBox.clear();
+      authBox.put('authBox', authFromJson);
+      return const Right(null);
     } on DioException catch (e) {
       return Left(Failure.fromJson(e.response!.data));
     }
