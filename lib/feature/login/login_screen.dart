@@ -284,6 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 loginController.captchaForOTP.value.captchaId!,
                                               )
                                               .then((value) => snackBarWithoutButton(context, value));
+                                          captchaOTPController.clear();
                                         }
                                       : null,
                                   child: Text(

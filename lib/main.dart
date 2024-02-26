@@ -1,15 +1,16 @@
 import 'package:ava_hesab/config/app_theme.dart';
 import 'package:ava_hesab/core/database/boxes.dart';
 import 'package:ava_hesab/core/di/service_locator.dart';
-import 'package:ava_hesab/feature/intro/intro_screen.dart';
-import 'package:ava_hesab/feature/login/login_screen.dart';
+import 'package:ava_hesab/feature/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-void main() async{
-  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await initServiceLocator();
   await Hive.initFlutter();
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      home: LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }
