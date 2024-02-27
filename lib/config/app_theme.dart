@@ -130,7 +130,7 @@ class AppThemes {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColorsLight.textLightDefault,
+        foregroundColor: AppColorsLight.primaryColor,
         disabledBackgroundColor: AppColorsLight.surfaceDisabled,
         disabledForegroundColor: AppColorsLight.surfaceDisabled,
         minimumSize: const Size(50, 48),

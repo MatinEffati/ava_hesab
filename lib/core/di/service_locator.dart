@@ -1,5 +1,6 @@
 import 'package:ava_hesab/core/network/network.dart';
 import 'package:ava_hesab/feature/login/data/source/login_data_source.dart';
+import 'package:ava_hesab/feature/register/data/source/register_data_source.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
@@ -18,4 +19,5 @@ void provideNetworkModule() {
 
 void provideNetworkDataSourceModule() {
   getIt.registerLazySingleton<ILoginDataSource>(() => LoginDataSource(networkClient: getIt()));
+  getIt.registerLazySingleton<IRegisterDataSource>(() => RegisterDataSource(networkClient: getIt()));
 }
