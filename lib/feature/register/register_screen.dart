@@ -2,6 +2,7 @@ import 'package:ava_hesab/config/app_colors.dart';
 import 'package:ava_hesab/core/widgets/ava_loading_button.dart';
 import 'package:ava_hesab/core/widgets/normal_app_bar.dart';
 import 'package:ava_hesab/core/widgets/snack_bar_widget.dart';
+import 'package:ava_hesab/feature/home/home_screen.dart';
 import 'package:ava_hesab/feature/register/controller/register_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -177,9 +178,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isLoading: registerController.isLoadingLoginOTPButton.value,
                         onPressed: () async {
                           if (registerController.isShowOTPFields.value) {
-                            await registerController
-                                .verifyOTP(mobileOTPController.text, otpCodeController.text)
-                                .then((value) => snackBarWithoutButton(context, value));
+                            var response =
+                                await registerController.verifyOTP(mobileOTPController.text, otpCodeController.text);
+                            response.fold((l) => snackBarWithoutButton(context, l.message!), (r) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const FinishRegistration(),
+                                ),
+                                (route) => false,
+                              );
+                            });
                           } else {
                             await registerController
                                 .register(
@@ -214,4 +223,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       borderRadius: BorderRadius.circular(8),
     ),
   );
+}
+
+class FinishRegistration extends StatelessWidget {
+  const FinishRegistration({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      appBar: NormalAppBar(
+        title: 'تکمیل اطلاعات',
+      ),
+      body: Column(),
+    );
+  }
 }

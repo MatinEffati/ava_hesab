@@ -14,7 +14,7 @@ import 'package:dio/dio.dart';
 abstract class IRegisterDataSource {
   Future<Either<Failure, OtpModel>> register(String mobile, String captcha, String captchaId);
 
-  Future<Either<Failure, void>> verifyOTP(String mobile, String code);
+  Future<Either<Failure, String>> verifyOTP(String mobile, String code);
 
   Future<CaptchaModel> captcha();
 }
@@ -59,17 +59,17 @@ class RegisterDataSource extends IRegisterDataSource {
   }
 
   @override
-  Future<Either<Failure, void>> verifyOTP(String mobile, String code) async {
+  Future<Either<Failure, String>> verifyOTP(String mobile, String code) async {
     try {
       var response = await networkClient.postRequest('customer/register/mobile/verify', variables: {
         "mobile": mobile,
         "code": code,
       });
-      var authFromJson = AuthModel.fromJson(response.data);
-      var authBox = HiveBoxes.getAuthBox();
-      authBox.clear();
-      authBox.put('authBox', authFromJson);
-      return const Right(null);
+      // var authFromJson = AuthModel.fromJson(response.data);
+      // var authBox = HiveBoxes.getAuthBox();
+      // authBox.clear();
+      // authBox.put('authBox', authFromJson);
+      return Right(response.data['message']);
     } on DioException catch (e) {
       return Left(Failure.fromJson(e.response!.data));
     }

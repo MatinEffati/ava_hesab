@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:ava_hesab/core/di/service_locator.dart';
+import 'package:ava_hesab/core/network/failure.dart';
 import 'package:ava_hesab/feature/login/data/model/captcha_model.dart';
 import 'package:ava_hesab/feature/login/data/source/login_data_source.dart';
 import 'package:ava_hesab/feature/register/data/source/register_data_source.dart';
+import 'package:dartz/dartz.dart';
 import 'package:get/get.dart';
 
 class RegisterController extends GetxController {
@@ -31,7 +33,7 @@ class RegisterController extends GetxController {
   }
 
   Future<CaptchaModel> getCaptcha() async {
-    return await getIt<ILoginDataSource>().captcha();
+    return await getIt<IRegisterDataSource>().captcha();
   }
 
   Future<String> register(String mobile, String captcha, String captchaId) async {
@@ -58,10 +60,10 @@ class RegisterController extends GetxController {
     });
   }
 
-  Future<String> verifyOTP(String mobile, String code) async {
+  Future<Either<Failure,String>> verifyOTP(String mobile, String code) async {
     isLoadingLoginOTPButton.value = true;
-    var response = await getIt<ILoginDataSource>().verifyOTP(mobile, code);
+    var response = await getIt<IRegisterDataSource>().verifyOTP(mobile, code);
     isLoadingLoginOTPButton.value = false;
-    return response.fold((l) => l.message!, (r) => 'ورود شما با موفقیت انجام شذ.');
+    return response;
   }
 }
