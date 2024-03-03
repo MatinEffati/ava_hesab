@@ -14,6 +14,15 @@ import 'package:dio/dio.dart';
 abstract class IRegisterDataSource {
   Future<Either<Failure, OtpModel>> register(String mobile, String captcha, String captchaId);
 
+  Future<Either<Failure, String>> finishRegister(
+    String code,
+    String firstName,
+    String lastName,
+    String mobile,
+    String password,
+    String passwordConfirmation,
+  );
+
   Future<Either<Failure, String>> verifyOTP(String mobile, String code);
 
   Future<CaptchaModel> captcha();
@@ -65,6 +74,37 @@ class RegisterDataSource extends IRegisterDataSource {
         "mobile": mobile,
         "code": code,
       });
+      // var authFromJson = AuthModel.fromJson(response.data);
+      // var authBox = HiveBoxes.getAuthBox();
+      // authBox.clear();
+      // authBox.put('authBox', authFromJson);
+      return Right(response.data['message']);
+    } on DioException catch (e) {
+      return Left(Failure.fromJson(e.response!.data));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> finishRegister(
+    String code,
+    String firstName,
+    String lastName,
+    String mobile,
+    String password,
+    String passwordConfirmation,
+  ) async {
+    try {
+      var response = await networkClient.postRequest(
+        'customer/register/mobile/finish',
+        variables: {
+          "code": code,
+          "firstName": firstName,
+          "lastName": lastName,
+          "mobile": mobile,
+          "password": password,
+          "passwordConfirmation": passwordConfirmation,
+        },
+      );
       // var authFromJson = AuthModel.fromJson(response.data);
       // var authBox = HiveBoxes.getAuthBox();
       // authBox.clear();

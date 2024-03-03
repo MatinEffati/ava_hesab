@@ -3,6 +3,7 @@ import 'package:ava_hesab/core/widgets/ava_loading_button.dart';
 import 'package:ava_hesab/core/widgets/normal_app_bar.dart';
 import 'package:ava_hesab/core/widgets/snack_bar_widget.dart';
 import 'package:ava_hesab/feature/home/home_screen.dart';
+import 'package:ava_hesab/feature/login/login_screen.dart';
 import 'package:ava_hesab/feature/register/controller/register_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -184,7 +185,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const FinishRegistration(),
+                                  builder: (context) => FinishRegistration(
+                                    registerController: registerController,
+                                    mobile: mobileOTPController.text,
+                                    code: otpCodeController.text,
+                                  ),
                                 ),
                                 (route) => false,
                               );
@@ -225,16 +230,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
   );
 }
 
-class FinishRegistration extends StatelessWidget {
-  const FinishRegistration({super.key});
+class FinishRegistration extends StatefulWidget {
+  const FinishRegistration({super.key, required this.registerController, required this.mobile, required this.code});
+
+  final RegisterController registerController;
+  final String mobile;
+  final String code;
+
+  @override
+  State<FinishRegistration> createState() => _FinishRegistrationState();
+}
+
+class _FinishRegistrationState extends State<FinishRegistration> {
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordConfirmationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: NormalAppBar(
+    return Scaffold(
+      appBar: const NormalAppBar(
         title: 'تکمیل اطلاعات',
       ),
-      body: Column(),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(
+          () => AvaLoadingButton(
+            title: 'تایید اطلاعات',
+            isLoading: widget.registerController.isLoadingFinishRegisterButton.value,
+            onPressed: () async {
+              await widget.registerController
+                  .finishRegister(
+                widget.code,
+                firstNameController.text,
+                lastNameController.text,
+                widget.mobile,
+                passwordController.text,
+                passwordConfirmationController.text,
+              ).then(
+                (value) {
+                  snackBarWithoutButton(context, value);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: firstNameController,
+                decoration: const InputDecoration(label: Text('نام')),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: lastNameController,
+                decoration: const InputDecoration(label: Text('نام خانوادگی')),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(label: Text('رمز عبور')),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordConfirmationController,
+                decoration: const InputDecoration(label: Text('تکرار رمز عبور')),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

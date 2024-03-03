@@ -12,6 +12,7 @@ class RegisterController extends GetxController {
   RxBool loadingCaptcha = false.obs;
   RxBool isLoadingLoginUsernameButton = false.obs;
   RxBool isLoadingLoginOTPButton = false.obs;
+  RxBool isLoadingFinishRegisterButton = false.obs;
   RxBool isShowOTPFields = false.obs;
   RxBool isOnResendOTP = false.obs;
   RxInt resendTimer = 0.obs;
@@ -60,10 +61,31 @@ class RegisterController extends GetxController {
     });
   }
 
-  Future<Either<Failure,String>> verifyOTP(String mobile, String code) async {
+  Future<Either<Failure, String>> verifyOTP(String mobile, String code) async {
     isLoadingLoginOTPButton.value = true;
     var response = await getIt<IRegisterDataSource>().verifyOTP(mobile, code);
     isLoadingLoginOTPButton.value = false;
     return response;
+  }
+
+  Future<String> finishRegister(
+    String code,
+    String firstName,
+    String lastName,
+    String mobile,
+    String password,
+    String passwordConfirmation,
+  ) async {
+    isLoadingFinishRegisterButton.value = true;
+    var response = await getIt<IRegisterDataSource>().finishRegister(
+      code,
+      firstName,
+      lastName,
+      mobile,
+      password,
+      passwordConfirmation,
+    );
+    isLoadingFinishRegisterButton.value = false;
+    return response.fold((l) => l.message!, (r) => r);
   }
 }
