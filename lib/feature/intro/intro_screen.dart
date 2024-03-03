@@ -1,13 +1,15 @@
 import 'package:ava_hesab/config/app_colors.dart';
+import 'package:ava_hesab/core/database/boxes.dart';
 import 'package:ava_hesab/core/utils/file_utility.dart';
 import 'package:ava_hesab/feature/login/login_screen.dart';
+import 'package:ava_hesab/feature/splash/data/model/first_time.dart';
 import 'package:flutter/material.dart';
 
 class IntroSlider extends StatefulWidget {
   const IntroSlider({super.key});
 
   @override
-  _IntroSliderState createState() => _IntroSliderState();
+  State<IntroSlider> createState() => _IntroSliderState();
 }
 
 class _IntroSliderState extends State<IntroSlider> {
@@ -77,11 +79,14 @@ class _IntroSliderState extends State<IntroSlider> {
                           curve: Curves.ease,
                         );
                       } else {
-                        Navigator.push(
+                        var firstTimeBox = HiveBoxes.getIsFirstTime();
+                        firstTimeBox.put('firstTimeBox', FirstTime(isFirstTime: false));
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => LoginScreen(),
-                            ));
+                            ),
+                            (route) => false);
                       }
                     },
                     child: Text(_currentPage == _slides.length - 1 ? 'تمام' : 'بعدی'),
@@ -124,8 +129,6 @@ class _IntroSliderState extends State<IntroSlider> {
     }
     return indicators;
   }
-
-
 
   Widget _indicator(bool isActive) {
     return AnimatedContainer(

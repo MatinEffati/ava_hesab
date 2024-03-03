@@ -1,5 +1,6 @@
 import 'package:ava_hesab/core/database/boxes.dart';
 import 'package:ava_hesab/feature/home/home_screen.dart';
+import 'package:ava_hesab/feature/intro/intro_screen.dart';
 import 'package:ava_hesab/feature/login/data/model/auth_model.dart';
 import 'package:ava_hesab/feature/login/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,14 +34,37 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-  Future<void> redirect()async {
-    await Future.delayed(const Duration(seconds: 2));
+
+  Future<void> redirect() async {
+    await Future.delayed(const Duration(seconds: 3));
     AuthModel? authBox = HiveBoxes.getAuthBox().get('authBox');
+    var firsTime = HiveBoxes.getIsFirstTime().get('firstTimeBox')?.isFirstTime;
     if (authBox != null) {
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeScreen(),), (route) => false);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+          (route) => false);
       FlutterNativeSplash.remove();
     } else {
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen(),), (route) => false);
+      if (firsTime == false) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginScreen(),
+            ),
+            (route) => false);
+      } else {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const IntroSlider(),
+            ),
+            (route) => false);
+      }
+
       FlutterNativeSplash.remove();
-    }  }
+    }
+  }
 }
