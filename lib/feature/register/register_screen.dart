@@ -248,6 +248,15 @@ class _FinishRegistrationState extends State<FinishRegistration> {
   TextEditingController passwordConfirmationController = TextEditingController();
 
   @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    passwordController.dispose();
+    passwordConfirmationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const NormalAppBar(
@@ -268,7 +277,8 @@ class _FinishRegistrationState extends State<FinishRegistration> {
                 widget.mobile,
                 passwordController.text,
                 passwordConfirmationController.text,
-              ).then(
+              )
+                  .then(
                 (value) {
                   snackBarWithoutButton(context, value);
                   Navigator.pushAndRemoveUntil(
