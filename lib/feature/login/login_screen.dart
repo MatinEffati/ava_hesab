@@ -21,12 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
   LoginController loginController = Get.put(LoginController());
 
   // with Username and password
-  TextEditingController mobileUsernameController = TextEditingController(text: '09398300660');
-  TextEditingController passwordController = TextEditingController(text: '123456');
+  TextEditingController mobileUsernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   TextEditingController captchaUsernameController = TextEditingController();
 
   //with OTP
-  TextEditingController mobileOTPController = TextEditingController(text: '09398300660');
+  TextEditingController mobileOTPController = TextEditingController();
   TextEditingController captchaOTPController = TextEditingController();
   TextEditingController otpCodeController = TextEditingController();
 

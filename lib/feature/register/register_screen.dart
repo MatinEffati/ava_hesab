@@ -19,7 +19,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final RegisterController registerController = Get.put(RegisterController());
-  TextEditingController mobileOTPController = TextEditingController(text: '09336329689');
+  TextEditingController mobileOTPController = TextEditingController();
   TextEditingController captchaController = TextEditingController();
   TextEditingController otpCodeController = TextEditingController();
 
